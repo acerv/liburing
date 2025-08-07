@@ -32,8 +32,7 @@ if [ -f "$TEST_DIR/config.local" ]; then
 	done
 fi
 
-_check_dmesg()
-{
+_check_dmesg() {
 	local dmesg_marker="$1"
 	local seqres="$2.seqres"
 
@@ -43,16 +42,16 @@ _check_dmesg()
 
 	dmesg | bash -c "$DMESG_FILTER" | grep -A 9999 "$dmesg_marker" >"${seqres}.dmesg"
 	grep -q -e "kernel BUG at" \
-	     -e "WARNING:" \
-	     -e "BUG:" \
-	     -e "Oops:" \
-	     -e "possible recursive locking detected" \
-	     -e "Internal error" \
-	     -e "INFO: suspicious RCU usage" \
-	     -e "INFO: possible circular locking dependency detected" \
-	     -e "general protection fault:" \
-	     -e "blktests failure" \
-	     "${seqres}.dmesg"
+		-e "WARNING:" \
+		-e "BUG:" \
+		-e "Oops:" \
+		-e "possible recursive locking detected" \
+		-e "Internal error" \
+		-e "INFO: suspicious RCU usage" \
+		-e "INFO: possible circular locking dependency detected" \
+		-e "general protection fault:" \
+		-e "blktests failure" \
+		"${seqres}.dmesg"
 	# shellcheck disable=SC2181
 	if [[ $? -eq 0 ]]; then
 		return 1
@@ -62,8 +61,7 @@ _check_dmesg()
 	fi
 }
 
-run_test()
-{
+run_test() {
 	local test_name="$1"
 	local dev="$2"
 	local test_exec=("./$test_name")
@@ -82,14 +80,14 @@ run_test()
 	# Log start of the test
 	if [ "$DO_KMSG" -eq 1 ]; then
 		local dmesg_marker="Running test $test_string:"
-		echo "$dmesg_marker" > /dev/kmsg
+		echo "$dmesg_marker" >/dev/kmsg
 	else
 		local dmesg_marker=""
 	fi
 	printf "Running test %-55s" "$test_string"
 
 	# Do we have to exclude the test ?
-	echo "$TEST_EXCLUDE" | grep -w "$test_name" > /dev/null 2>&1
+	echo "$TEST_EXCLUDE" | grep -w "$test_name" >/dev/null 2>&1
 	# shellcheck disable=SC2181
 	if [ $? -eq 0 ]; then
 		echo "Test skipped"
@@ -99,7 +97,7 @@ run_test()
 
 	# Run the test
 	T_START=$(date +%s)
-	timeout -s INT -k $TIMEOUT $TIMEOUT "${test_exec[@]}"
+	valgrind timeout -s INT -k $TIMEOUT $TIMEOUT "${test_exec[@]}"
 	local status=$?
 	T_END=$(date +%s)
 
@@ -129,13 +127,13 @@ run_test()
 		else
 			T_PREV=""
 		fi
-		T_DIFF=$((T_END-T_START))
+		T_DIFF=$((T_END - T_START))
 		if [ -n "$T_PREV" ]; then
 			echo "$T_DIFF sec [$T_PREV]"
 		else
 			echo "$T_DIFF sec"
 		fi
-		echo $T_DIFF > "output/$out_name"
+		echo $T_DIFF >"output/$out_name"
 	fi
 }
 
